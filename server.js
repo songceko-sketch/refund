@@ -224,12 +224,24 @@ app.get('/api/refunds', authenticateToken, async (req, res) => {
                 ORDER BY created_at DESC
             `, [req.user.id]);
         }
-        for (let r of refunds) {
-            const withdrawal = await db.get('SELECT * FROM withdrawal_requests WHERE refund_id = ?', [r.id]);
-            r.withdrawal = withdrawal || null;
+
+        // Optimize: Fetch all relevant withdrawals in one query to avoid N+1 problem
+        const refundIds = refunds.map(r => r.id);
+        if (refundIds.length > 0) {
+            const placeholders = refundIds.map(() => '?').join(',');
+            const withdrawals = await db.all(
+                `SELECT * FROM withdrawal_requests WHERE refund_id IN (${placeholders})`,
+                refundIds
+            );
+            const withdrawalMap = Object.fromEntries(withdrawals.map(w => [w.refund_id, w]));
+            refunds.forEach(r => {
+                r.withdrawal = withdrawalMap[r.id] || null;
+            });
         }
+
         res.json(refunds);
     } catch (e) {
+        console.error('Error fetching refunds:', e);
         res.status(500).json({ error: 'Error fetching refunds' });
     }
 });
@@ -375,14 +387,19 @@ app.post('/api/withdrawals', authenticateToken, async (req, res) => {
 });
 
 app.get('/api/withdrawals', authenticateToken, requireAdmin, async (req, res) => {
-    const withdrawals = await db.all(`
-        SELECT w.*, u.email, r.item_name, r.amount, r.status as refund_status
-        FROM withdrawal_requests w
-        JOIN users u ON w.user_id = u.id
-        JOIN refund_requests r ON w.refund_id = r.id
-        ORDER BY w.created_at DESC
-    `);
-    res.json(withdrawals);
+    try {
+        const withdrawals = await db.all(`
+            SELECT w.*, u.email, r.item_name, r.amount, r.status as refund_status
+            FROM withdrawal_requests w
+            JOIN users u ON w.user_id = u.id
+            JOIN refund_requests r ON w.refund_id = r.id
+            ORDER BY w.created_at DESC
+        `);
+        res.json(withdrawals);
+    } catch (e) {
+        console.error('Error fetching withdrawals:', e);
+        res.status(500).json({ error: 'Database error fetching withdrawals' });
+    }
 });
 
 // Admin: update withdrawal status + send stylized user email

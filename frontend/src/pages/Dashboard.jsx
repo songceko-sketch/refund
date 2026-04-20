@@ -293,7 +293,7 @@ export default function Dashboard({ auth }) {
                       <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="px-6 py-4 text-sm font-medium text-slate-800">{r.order_number}</td>
                         <td className="px-6 py-4 text-sm text-slate-700">{r.item_name}</td>
-                        <td className="px-6 py-4 text-sm font-semibold text-slate-700">${r.amount.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-slate-700">${parseFloat(r.amount).toFixed(2)}</td>
                         <td className="px-6 py-4 text-sm text-slate-500">{new Date(r.created_at).toLocaleDateString()}</td>
                         <td className="px-6 py-4">{getStatusBadge(r.status)}</td>
                         <td className="px-6 py-4 text-right">
@@ -505,8 +505,8 @@ export default function Dashboard({ auth }) {
                                 }
                                 return (
                                   <div className="flex items-center gap-2 group mt-1">
-                                    <span className="font-bold text-green-600">${w.amount.toFixed(2)}</span>
-                                    <button onClick={() => setAmountEdit(prev => ({ ...prev, [`w-${w.refund_id}`]: { editing: true, value: w.amount.toFixed(2), saving: false } }))} title="Edit amount" className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
+                                    <span className="font-bold text-green-600">${parseFloat(w.amount).toFixed(2)}</span>
+                                    <button onClick={() => setAmountEdit(prev => ({ ...prev, [`w-${w.refund_id}`]: { editing: true, value: parseFloat(w.amount).toFixed(2), saving: false } }))} title="Edit amount" className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
                                       <Pencil className="w-3.5 h-3.5" />
                                     </button>
                                   </div>
@@ -718,7 +718,7 @@ export default function Dashboard({ auth }) {
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5">
                 <p className="text-xs font-semibold text-green-600 uppercase tracking-wider mb-2">Approved Refund</p>
                 <p className="text-slate-800 font-semibold text-base">{selectedRefund.item_name}</p>
-                <p className="text-3xl font-extrabold text-green-700 mt-1">${selectedRefund.amount.toFixed(2)}</p>
+                <p className="text-3xl font-extrabold text-green-700 mt-1">${parseFloat(selectedRefund.amount).toFixed(2)}</p>
               </div>
 
               <div>

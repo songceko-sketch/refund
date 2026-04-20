@@ -55,7 +55,7 @@ function App() {
                   <Link to="/privacy" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Privacy</Link>
                   {auth && (
                     <Link to="/dashboard" className="text-sm font-bold text-primary hover:text-indigo-600 transition-colors">
-                      {auth.role === 'admin' ? '⚙️ Admin Panel' : '📦 My Dashboard'}
+                      {(auth.role === 'admin' || auth.role === 'superadmin') ? '⚙️ Admin Panel' : '📦 My Dashboard'}
                     </Link>
                   )}
                 </div>
