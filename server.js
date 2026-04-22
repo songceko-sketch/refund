@@ -16,7 +16,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key_123';
 
-const uploadsDir = path.join(__dirname, 'uploads');
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const uploadsDir = path.join(DATA_DIR, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -69,7 +70,7 @@ function emailWrapper(headerColor, headerText, bodyContent) {
 
 async function setupDatabase() {
     db = await open({
-        filename: path.join(__dirname, 'database.sqlite'),
+        filename: path.join(DATA_DIR, 'database.sqlite'),
         driver: sqlite3.Database
     });
 
