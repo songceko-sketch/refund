@@ -30,6 +30,11 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
+// Debug logging
+if (process.env.NODE_ENV !== 'production') {
+    console.log('Environment:', { PORT, NODE_ENV: process.env.NODE_ENV, DATA_DIR });
+}
+
 let db;
 
 const transporter = nodemailer.createTransport({
@@ -504,18 +509,37 @@ app.get('/api/admin/test-email', authenticateToken, requireAdmin, async (req, re
     }
 });
 
+// ─── Health Check ─────────────────────────────────────────────────────────────
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // ─── Static / SPA Fallback ────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, 'frontend/dist')));
-app.use((req, res, next) => {
-    if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
-        res.sendFile(path.join(__dirname, 'frontend/dist', 'index.html'));
-    } else {
-        next();
+const distPath = path.join(__dirname, 'frontend/dist');
+if (!fs.existsSync(distPath)) {
+    console.warn('⚠️  WARNING: frontend/dist not found. Frontend build may have failed.');
+}
+
+app.use(express.static(distPath));
+
+app.use((req, res) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+        return res.status(404).json({ error: 'Not found' });
     }
+    res.sendFile(path.join(distPath, 'index.html'), (err) => {
+        if (err) {
+            res.status(404).json({ error: 'Application not built. Run: npm run build' });
+        }
+    });
 });
 
 setupDatabase().then(() => {
     app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`✅ Server running on http://0.0.0.0:${PORT}`);
+        console.log(`   http://localhost:${PORT}`);
+        console.log(`   Health check: http://localhost:${PORT}/health`);
     });
-}).catch(console.error);
+}).catch((err) => {
+    console.error('❌ Failed to start server:', err);
+    process.exit(1);
+});

@@ -1,5 +1,11 @@
 [phases.build]
-cmds = ["npm install --prefix frontend && npm run build --prefix frontend"]
+cmds = ["npm install", "npm install --prefix frontend", "npm run build --prefix frontend"]
 
 [start]
 cmd = "node server.js"
+
+[health-checks]
+process = "app"
+uri = "/health"
+period = "10s"
+timeout = "5s"

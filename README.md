@@ -45,3 +45,23 @@ The database will automatically be seeded with an admin user, and sample orders 
 3. You will immediately be logged in and populated with sample orders (some recent, some past 7 days to demonstrate business logic).
 4. Initiate a refund request.
 5. In another browser or incognito window, log into the admin account to Approve or Reject the new request.
+
+## Deployment
+
+For production deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+**Quick Start for Deployment:**
+```bash
+# Using Docker
+docker build -t refundflow .
+docker run -p 5000:5000 -e EMAIL_USER=your_email -e EMAIL_PASS=your_password refundflow
+
+# Or using docker-compose
+docker-compose up -d
+```
+
+The application includes:
+- ✅ Health check endpoint (`/health`)
+- ✅ Dockerized builds
+- ✅ Optimized nixpacks configuration
+- ✅ Environment variable support
