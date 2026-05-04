@@ -4,19 +4,13 @@ cmds = ["npm install", "npm install --prefix frontend", "npm run build --prefix 
 [start]
 cmd = "node server.js"
 
-[health-checks]
-process = "app"
-uri = "/health"
-period = "10s"
-timeout = "5s"
-
 [[envs]]
 key = "NODE_ENV"
 value = "production"
 
 [[envs]]
 key = "DATA_DIR"
-value = "/tmp/data"
+value = "/app/data"
 
 [[envs]]
 key = "PORT"

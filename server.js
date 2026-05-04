@@ -14,7 +14,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET || 'secret_key_123';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    console.error('❌ FATAL: JWT_SECRET environment variable is not set.');
+    process.exit(1);
+}
 
 const DATA_DIR = process.env.DATA_DIR || __dirname;
 const uploadsDir = path.join(DATA_DIR, 'uploads');
