@@ -9,3 +9,15 @@ process = "app"
 uri = "/health"
 period = "10s"
 timeout = "5s"
+
+[[envs]]
+key = "NODE_ENV"
+value = "production"
+
+[[envs]]
+key = "DATA_DIR"
+value = "/tmp/data"
+
+[[envs]]
+key = "PORT"
+value = "5000"

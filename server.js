@@ -30,10 +30,15 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
-// Debug logging
-if (process.env.NODE_ENV !== 'production') {
-    console.log('Environment:', { PORT, NODE_ENV: process.env.NODE_ENV, DATA_DIR });
+// Ensure NODE_ENV is set
+if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = 'production';
 }
+
+// Debug logging
+console.log('🚀 Starting RefundFlow server...');
+console.log('📋 Environment:', { PORT, NODE_ENV: process.env.NODE_ENV, DATA_DIR });
+console.log('📁 Data directory:', uploadsDir);
 
 let db;
 
@@ -74,12 +79,22 @@ function emailWrapper(headerColor, headerText, bodyContent) {
 }
 
 async function setupDatabase() {
-    db = await open({
-        filename: path.join(DATA_DIR, 'database.sqlite'),
-        driver: sqlite3.Database
-    });
+    const dbPath = path.join(DATA_DIR, 'database.sqlite');
+    console.log('📊 Initializing database at:', dbPath);
+    
+    try {
+        db = await open({
+            filename: dbPath,
+            driver: sqlite3.Database
+        });
+        console.log('✅ Database connection established');
+    } catch (err) {
+        console.error('❌ Failed to open database:', err.message);
+        throw err;
+    }
 
-    await db.exec(`
+    try {
+        await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
@@ -116,14 +131,25 @@ async function setupDatabase() {
             FOREIGN KEY (user_id) REFERENCES users (id)
         );
     `);
+        console.log('✅ Database tables created');
+    } catch (err) {
+        console.error('❌ Failed to create database tables:', err.message);
+        throw err;
+    }
 
-    const adminEmail = 'admin@refunds.com';
-    const adminUser = await db.get('SELECT * FROM users WHERE email = ?', [adminEmail]);
-    if (!adminUser) {
-        const hashedPassword = await bcrypt.hash('admin123', 10);
-        await db.run('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', [adminEmail, hashedPassword, 'superadmin']);
-    } else {
-        await db.run('UPDATE users SET role = ? WHERE email = ?', ['superadmin', adminEmail]);
+    try {
+        const adminEmail = 'admin@refunds.com';
+        const adminUser = await db.get('SELECT * FROM users WHERE email = ?', [adminEmail]);
+        if (!adminUser) {
+            const hashedPassword = await bcrypt.hash('admin123', 10);
+            await db.run('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', [adminEmail, hashedPassword, 'superadmin']);
+            console.log('✅ Admin user created');
+        } else {
+            await db.run('UPDATE users SET role = ? WHERE email = ?', ['superadmin', adminEmail]);
+        }
+    } catch (err) {
+        console.error('❌ Failed to setup admin user:', err.message);
+        throw err;
     }
 }
 
@@ -534,12 +560,18 @@ app.use((req, res) => {
 });
 
 setupDatabase().then(() => {
-    app.listen(PORT, '0.0.0.0', () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
         console.log(`✅ Server running on http://0.0.0.0:${PORT}`);
         console.log(`   http://localhost:${PORT}`);
         console.log(`   Health check: http://localhost:${PORT}/health`);
     });
+    
+    server.on('error', (err) => {
+        console.error('❌ Server error:', err.message);
+        process.exit(1);
+    });
 }).catch((err) => {
-    console.error('❌ Failed to start server:', err);
+    console.error('❌ Failed to start server:', err.message);
+    console.error('Stack trace:', err.stack);
     process.exit(1);
 });
