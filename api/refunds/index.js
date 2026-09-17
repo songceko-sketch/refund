@@ -71,6 +71,27 @@ module.exports = async (req, res) => {
             try {
                 await sql`INSERT INTO refund_requests (user_id, order_number, item_name, amount, reason, details, proof_image, fee_accepted)
                     VALUES (${user.id}, ${order_number}, ${item_name}, ${parseFloat(amount)}, ${reason}, ${details}, ${proof_image}, 1)`;
+
+                const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+                if (adminEmail) {
+                    const bodyContent = `
+                        <h2 style="color:#1e293b;margin:0 0 12px">📥 New Refund Request</h2>
+                        <p style="color:#475569">A user has submitted a new refund request that requires your review.</p>
+                        <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:18px;margin:20px 0">
+                          <table style="width:100%;border-collapse:collapse">
+                            <tr><td style="padding:6px 0;color:#64748b;font-size:13px">User</td><td style="font-weight:bold;color:#1e293b">${user.email}</td></tr>
+                            <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Order #</td><td style="color:#1e293b">${order_number}</td></tr>
+                            <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Item</td><td style="font-weight:bold;color:#1e293b">${item_name}</td></tr>
+                            <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Amount</td><td style="font-weight:bold;color:#16a34a;font-size:18px">$${parseFloat(amount).toFixed(2)}</td></tr>
+                            <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Reason</td><td style="color:#1e293b">${reason}</td></tr>
+                            <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Details</td><td style="color:#475569">${details || 'N/A'}</td></tr>
+                          </table>
+                        </div>
+                        <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Review Request →</a>`;
+                    const html = emailWrapper('linear-gradient(135deg,#3b82f6,#6366f1)', 'New Refund Request', bodyContent);
+                    await sendEmail(adminEmail, `📥 New Refund Request – ${user.email}`, html);
+                }
+
                 return res.status(201).json({ message: 'Refund request submitted successfully.' });
             } catch (e) {
                 console.error(e);
