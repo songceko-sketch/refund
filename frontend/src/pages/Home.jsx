@@ -4,7 +4,7 @@ import { ShieldCheck, Clock, CheckCircle, Star } from 'lucide-react';
 
 export default function Home() {
   useEffect(() => {
-    document.title = "RefundFlow - Hassle-Free Order Returns & Refunds";
+    document.title = "RefundGlobal - Hassle-Free Order Returns & Refunds";
   }, []);
 
   return (
@@ -90,7 +90,7 @@ export default function Home() {
         <div className="relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">What Our Customers Say</h2>
-            <p className="text-slate-500 mt-2">Join thousands of satisfied shoppers who trust RefundFlow</p>
+            <p className="text-slate-500 mt-2">Join thousands of satisfied shoppers who trust RefundGlobal</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="glass-card p-8 rounded-2xl">

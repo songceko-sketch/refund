@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 export default function AboutUs() {
   useEffect(() => {
-    document.title = "About Us - RefundFlow";
+    document.title = "About Us - RefundGlobal";
   }, []);
 
   return (
@@ -12,7 +12,7 @@ export default function AboutUs() {
           <div className="md:w-1/2">
             <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight mb-6">About Us</h1>
             <p className="text-lg text-slate-600 mb-4 whitespace-pre-line">
-              Welcome to <strong>RefundFlow</strong>. We are dedicated to providing the most transparent, efficient, and customer-friendly refund process in the industry.
+              Welcome to <strong>RefundGlobal</strong>. We are dedicated to providing the most transparent, efficient, and customer-friendly refund process in the industry.
               {'\n\n'}
               Founded in 2026, our mission is simple: to bridge the trust gap between buyers and merchants. We understand that sometimes, products don't meet your expectations or simply aren't the right fit. When that happens, you shouldn't have to jump through hoops to get your money back.
             </p>

@@ -11,7 +11,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Register - RefundFlow";
+    document.title = "Register - RefundGlobal";
   }, []);
 
   const handleSubmit = async (e) => {

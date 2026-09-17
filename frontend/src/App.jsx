@@ -47,7 +47,7 @@ function App() {
             <div className="flex justify-between h-16 items-center">
               <div className="flex-shrink-0 flex items-center gap-8">
                 <Link to="/" className="text-xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent tracking-tight">
-                  RefundFlow
+                  RefundGlobal
                 </Link>
                 <div className="hidden md:flex items-center space-x-6">
                   <Link to="/" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Home</Link>
@@ -108,7 +108,7 @@ function App() {
 
         <footer className="w-full text-center py-6 border-t border-slate-200 bg-white/50 mt-auto">
           <p className="text-xs text-slate-400">
-            &copy; 2026 RefundFlow. All rights reserved.{' '}
+            &copy; 2026 RefundGlobal. All rights reserved.{' '}
             <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
             {' · '}
             <Link to="/about" className="hover:text-primary transition-colors">About Us</Link>

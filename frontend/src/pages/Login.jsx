@@ -10,7 +10,7 @@ export default function Login({ onLogin }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.title = "Login - RefundFlow";
+    document.title = "Login - RefundGlobal";
   }, []);
 
   const handleSubmit = async (e) => {
@@ -44,7 +44,7 @@ export default function Login({ onLogin }) {
       <div className="glass-card w-full max-w-md p-8 rounded-3xl animate-fade-in-up md:w-1/2 shadow-xl border border-white/40">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Welcome Back</h2>
-          <p className="text-slate-500 mt-2">Sign in to manage your refunds</p>
+          <p className="text-slate-500 mt-2">Sign in to manage your refunds with RefundGlobal</p>
         </div>
 
         {error && (
