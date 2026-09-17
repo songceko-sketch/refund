@@ -1,6 +1,6 @@
-const sql = require('../../../lib/db');
-const { cors, requireAdmin } = require('../../../lib/middleware');
-const { sendEmail, emailWrapper } = require('../../../lib/email');
+const sql = require('../../lib/db');
+const { cors, requireAdmin } = require('../../lib/middleware');
+const { sendEmail, emailWrapper } = require('../../lib/email');
 
 module.exports = async (req, res) => {
     cors(res);
