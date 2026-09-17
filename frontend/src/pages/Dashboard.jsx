@@ -137,7 +137,7 @@ export default function Dashboard({ auth }) {
   };
 
   const startAmountEdit = (refundId, currentAmount) => {
-    setAmountEdit(prev => ({ ...prev, [refundId]: { editing: true, value: currentAmount.toFixed(2), saving: false } }));
+    setAmountEdit(prev => ({ ...prev, [refundId]: { editing: true, value: parseFloat(currentAmount).toFixed(2), saving: false } }));
   };
 
   const saveAmount = async (refundId) => {
@@ -423,7 +423,7 @@ export default function Dashboard({ auth }) {
                               }
                               return (
                                 <div className="flex items-center gap-2 group">
-                                  <span className="text-sm font-bold text-green-700">${r.amount.toFixed(2)}</span>
+                                  <span className="text-sm font-bold text-green-700">${parseFloat(r.amount).toFixed(2)}</span>
                                   <button onClick={() => startAmountEdit(r.id, r.amount)} title="Edit amount" className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
                                     <Pencil className="w-3.5 h-3.5" />
                                   </button>
