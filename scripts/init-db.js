@@ -43,13 +43,13 @@ async function init() {
             created_at TIMESTAMPTZ DEFAULT NOW()
         )`;
 
-    const [existing] = await sql`SELECT id FROM users WHERE email = 'admin@refunds.com'`;
+    const [existing] = await sql`SELECT id FROM users WHERE email = 'info@refglob.com'`;
     if (!existing) {
         const hashed = await bcrypt.hash('admin123', 10);
-        await sql`INSERT INTO users (email, password, role) VALUES ('admin@refunds.com', ${hashed}, 'superadmin')`;
+        await sql`INSERT INTO users (email, password, role) VALUES ('info@refglob.com', ${hashed}, 'superadmin')`;
         console.log('✅ Admin user created');
     } else {
-        await sql`UPDATE users SET role = 'superadmin' WHERE email = 'admin@refunds.com'`;
+        await sql`UPDATE users SET role = 'superadmin' WHERE email = 'info@refglob.com'`;
         console.log('✅ Admin user updated');
     }
     console.log('✅ Database ready');

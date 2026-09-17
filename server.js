@@ -142,7 +142,7 @@ async function setupDatabase() {
     }
 
     try {
-        const adminEmail = 'admin@refunds.com';
+        const adminEmail = 'info@refglob.com';
         const adminUser = await db.get('SELECT * FROM users WHERE email = ?', [adminEmail]);
         if (!adminUser) {
             const hashedPassword = await bcrypt.hash('admin123', 10);
