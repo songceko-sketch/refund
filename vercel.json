@@ -4,16 +4,9 @@
   "outputDirectory": "frontend/dist",
   "framework": null,
   "rewrites": [
-    { "source": "/api/auth/register", "destination": "/api/auth/register" },
-    { "source": "/api/auth/login", "destination": "/api/auth/login" },
-    { "source": "/api/auth/admin", "destination": "/api/auth/admin" },
-    { "source": "/api/refunds/:id/amount", "destination": "/api/refunds/[id]/amount" },
+    { "source": "/api/refunds/amount", "destination": "/api/refunds/amount" },
     { "source": "/api/refunds/:id", "destination": "/api/refunds/[id]" },
-    { "source": "/api/refunds", "destination": "/api/refunds/index" },
     { "source": "/api/withdrawals/:id", "destination": "/api/withdrawals/[id]" },
-    { "source": "/api/withdrawals", "destination": "/api/withdrawals/index" },
-    { "source": "/api/admin/test-email", "destination": "/api/admin/test-email" },
-    { "source": "/health", "destination": "/api/health" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

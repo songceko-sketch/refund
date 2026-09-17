@@ -148,7 +148,7 @@ export default function Dashboard({ auth }) {
     }
     setAmountEdit(prev => ({ ...prev, [refundId]: { ...prev[refundId], saving: true } }));
     try {
-      await axios.put(`/api/refunds/${refundId}/amount`, { amount: parseFloat(entry.value) }, config);
+      await axios.put(`/api/refunds/amount?id=${refundId}`, { amount: parseFloat(entry.value) }, config);
       showToast('💰 Amount updated & user notified by email.');
       setAmountEdit(prev => ({ ...prev, [refundId]: { editing: false, value: '', saving: false } }));
       fetchData();

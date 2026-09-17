@@ -1,6 +1,6 @@
-const sql = require('../../lib/db');
-const { cors, requireAdmin } = require('../../lib/middleware');
-const { sendEmail, emailWrapper } = require('../../lib/email');
+const sql = require('../../../lib/db');
+const { cors, requireAdmin } = require('../../../lib/middleware');
+const { sendEmail, emailWrapper } = require('../../../lib/email');
 
 module.exports = async (req, res) => {
     cors(res);
@@ -12,11 +12,10 @@ module.exports = async (req, res) => {
     const { id } = req.query;
 
     // PUT /api/refunds/[id] - approve/reject
-    if (req.method === 'PUT') {
+    if (req.method === 'PUT' && !req.query.action) {
         const { status, comment } = req.body;
         if (!['Approved', 'Rejected'].includes(status))
             return res.status(400).json({ error: 'Invalid status' });
-
         try {
             const [refund] = await sql`
                 SELECT r.*, u.email FROM refund_requests r
@@ -37,11 +36,9 @@ module.exports = async (req, res) => {
                     : `<h2 style="color:#1e293b;margin:0 0 12px">Refund Request Update</h2>
                        <p style="color:#475569">Your refund for <strong>${refund.item_name}</strong> has been <strong style="color:#dc2626">rejected</strong>.</p>
                        ${comment ? `<p style="color:#475569"><strong>Reason:</strong> ${comment}</p>` : ''}`;
-
                 const html = emailWrapper(
                     isApproved ? 'linear-gradient(135deg,#3b82f6,#6366f1)' : 'linear-gradient(135deg,#ef4444,#dc2626)',
-                    isApproved ? 'Refund Approved' : 'Refund Rejected',
-                    bodyContent
+                    isApproved ? 'Refund Approved' : 'Refund Rejected', bodyContent
                 );
                 await sendEmail(refund.email, isApproved ? `✅ Refund Approved – "${refund.item_name}"` : `❌ Refund Update – "${refund.item_name}"`, html);
             }
