@@ -2,14 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Package, Clock, CheckCircle, XCircle, ShieldCheck, PlusCircle, X, Upload, DollarSign, AlertCircle, Pencil, Save, Hourglass, Mail } from 'lucide-react';
 
-const PAYMENT_METHODS = [
-  { id: 'cashapp', label: 'CashApp', icon: '💸' },
-  { id: 'chime', label: 'Chime', icon: '🏦' },
-  { id: 'venmo', label: 'Venmo', icon: '💳' },
-  { id: 'giftcard', label: 'Gift Card', icon: '🎁' },
-  { id: 'applepay', label: 'Apple Pay', icon: '🍎' },
-];
-
 export default function Dashboard({ auth }) {
   const [refunds, setRefunds] = useState([]);
   const [withdrawals, setWithdrawals] = useState([]);
@@ -18,19 +10,12 @@ export default function Dashboard({ auth }) {
   const [toast, setToast] = useState(null);
 
   const [showRefundModal, setShowRefundModal] = useState(false);
-  const [refundForm, setRefundForm] = useState({ order_number: '', item_name: '', amount: '', reason: '', details: '', fee_accepted: false, proof_image: null });
+  const [refundForm, setRefundForm] = useState({ order_number: '', item_name: '', amount: '', reason: '', details: '', proof_image: null });
   const [refundLoading, setRefundLoading] = useState(false);
   const [refundError, setRefundError] = useState('');
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [selectedRefund, setSelectedRefund] = useState(null);
-  const [withdrawForm, setWithdrawForm] = useState({ payment_method: '', payment_details: '' });
-  const [withdrawLoading, setWithdrawLoading] = useState(false);
-  const [withdrawError, setWithdrawError] = useState('');
-
   const [adminComment, setAdminComment] = useState({});
-  // amountEdit: { [refundId]: { editing: bool, value: string, saving: bool } }
   const [amountEdit, setAmountEdit] = useState({});
 
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
@@ -80,10 +65,6 @@ export default function Dashboard({ auth }) {
 
   const submitRefund = async (e) => {
     e.preventDefault();
-    if (!refundForm.fee_accepted) {
-      setRefundError('You must agree to the $150 processing fee to continue.');
-      return;
-    }
     setRefundLoading(true);
     setRefundError('');
     try {
@@ -93,7 +74,6 @@ export default function Dashboard({ auth }) {
       formData.append('amount', refundForm.amount);
       formData.append('reason', refundForm.reason);
       formData.append('details', refundForm.details);
-      formData.append('fee_accepted', 'true');
       if (refundForm.proof_image) formData.append('proof_image', refundForm.proof_image);
 
       await axios.post('/api/refunds', formData, {
@@ -101,7 +81,7 @@ export default function Dashboard({ auth }) {
       });
       showToast('Refund request submitted successfully! We will review it shortly.');
       setShowRefundModal(false);
-      setRefundForm({ order_number: '', item_name: '', amount: '', reason: '', details: '', fee_accepted: false, proof_image: null });
+      setRefundForm({ order_number: '', item_name: '', amount: '', reason: '', details: '', proof_image: null });
       setPreviewUrl(null);
       fetchData();
     } catch (err) {
@@ -111,28 +91,16 @@ export default function Dashboard({ auth }) {
     }
   };
 
-  const submitWithdrawal = async (e) => {
-    e.preventDefault();
-    if (!withdrawForm.payment_method) {
-      setWithdrawError('Please select a payment method for your fee.');
-      return;
-    }
-    setWithdrawLoading(true);
-    setWithdrawError('');
+  const notifyAdminWithdraw = async (refundId) => {
+    setActionLoading(`notify-${refundId}`);
     try {
-      await axios.post('/api/withdrawals', { 
-        refund_id: selectedRefund.id,
-        payment_method: withdrawForm.payment_method,
-        payment_details: withdrawForm.payment_details
-      }, config);
-      showToast('✅ Request submitted! Admin will see your payment choice and reply shortly.');
-      setShowWithdrawModal(false);
-      setWithdrawForm({ payment_method: '', payment_details: '' });
+      await axios.post('/api/withdrawals', { refund_id: refundId }, config);
+      showToast('Admin has been notified. You will receive further instructions by email.');
       fetchData();
     } catch (err) {
-      setWithdrawError(err.response?.data?.error || 'Submission failed.');
+      showToast(err.response?.data?.error || 'Failed to notify admin.', 'error');
     } finally {
-      setWithdrawLoading(false);
+      setActionLoading(null);
     }
   };
 
@@ -299,10 +267,11 @@ export default function Dashboard({ auth }) {
                         <td className="px-6 py-4 text-right">
                           {r.status === 'Approved' && !r.withdrawal && (
                             <button
-                              onClick={() => { setSelectedRefund(r); setWithdrawError(''); setShowWithdrawModal(true); }}
-                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 shadow-md transition-all transform hover:scale-105"
+                              onClick={() => notifyAdminWithdraw(r.id)}
+                              disabled={actionLoading === `notify-${r.id}`}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 shadow-md transition-all transform hover:scale-105 disabled:opacity-60"
                             >
-                              <DollarSign className="w-4 h-4" /> Withdraw Funds
+                              <DollarSign className="w-4 h-4" /> {actionLoading === `notify-${r.id}` ? 'Notifying...' : 'Notify Admin'}
                             </button>
                           )}
                           {r.status === 'Approved' && r.withdrawal && (
@@ -310,7 +279,7 @@ export default function Dashboard({ auth }) {
                               {getStatusBadge(r.withdrawal.status === 'Pending' ? 'Pending Instructions' : r.withdrawal.status)}
                               {r.withdrawal.status === 'Awaiting Payment' && r.withdrawal.admin_reply && (
                                 <div className="mt-2 text-left bg-amber-50 border border-amber-200 rounded-xl p-2.5 max-w-xs ml-auto">
-                                  <p className="text-xs font-bold text-amber-800 mb-1">📋 Payment Instructions:</p>
+                                  <p className="text-xs font-bold text-amber-800 mb-1">📋 Fee Instructions:</p>
                                   <p className="text-xs text-amber-700 font-mono whitespace-pre-wrap">{r.withdrawal.admin_reply}</p>
                                 </div>
                               )}
@@ -334,10 +303,10 @@ export default function Dashboard({ auth }) {
           {refunds.some(r => r.status === 'Approved' && !r.withdrawal) && (
           <div className="glass-card rounded-2xl p-6 border-l-4 border-green-500 bg-green-50/50">
               <h3 className="font-bold text-green-800 text-lg flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" /> Refund Approved – Withdraw Now
+                <CheckCircle className="w-5 h-5" /> Refund Approved
               </h3>
               <p className="text-green-700 text-sm mt-1">
-                You have an approved refund ready. Click <strong>"Withdraw Funds"</strong> to notify your admin. They will send you payment instructions by email.
+                Your refund has been approved. Click <strong>"Notify Admin"</strong> and our team will contact you with fee and processing instructions.
               </p>
             </div>
           )}
@@ -464,7 +433,7 @@ export default function Dashboard({ auth }) {
                   <table className="w-full text-left">
                      <thead>
                        <tr className="bg-slate-50 border-b">
-                          <th className="px-6 py-4 text-sm font-semibold">User &amp; Choice</th>
+                          <th className="px-6 py-4 text-sm font-semibold">User</th>
                           <th className="px-6 py-4 text-sm font-semibold">Item &amp; Amount</th>
                           <th className="px-6 py-4 text-sm font-semibold">Status</th>
                           <th className="px-6 py-4 text-sm font-semibold">Admin Action</th>
@@ -475,14 +444,7 @@ export default function Dashboard({ auth }) {
                           <tr key={w.id} className="hover:bg-slate-50/50 transition-colors">
                             <td className="px-6 py-4">
                               <div className="text-sm font-medium text-slate-800">{w.email}</div>
-                              <div className="mt-1">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
-                                  Fee via: {w.payment_method}
-                                </span>
-                                <div className="text-xs text-slate-500 mt-0.5 truncate max-w-[150px]" title={w.payment_details}>
-                                  Details: {w.payment_details}
-                                </div>
-                              </div>
+                              <div className="text-xs text-slate-500 mt-1">Requested withdrawal</div>
                             </td>
                             <td className="px-6 py-4">
                               <div className="font-semibold text-slate-800">{w.item_name}</div>
@@ -519,7 +481,7 @@ export default function Dashboard({ auth }) {
                                 <div className="space-y-2 min-w-[220px]">
                                   <textarea
                                     rows={2}
-                                    placeholder="Enter Payment Tags / Instructions here (e.g. Send to CashApp: $AdminTag)..."
+                                    placeholder="Enter fee consent notice / processing instructions for the client..."
                                     className="w-full text-xs px-3 py-2 border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
                                     value={adminComment[`withdraw-${w.id}`] || ''}
                                     onChange={e => setAdminComment(p => ({ ...p, [`withdraw-${w.id}`]: e.target.value }))}
@@ -681,20 +643,6 @@ export default function Dashboard({ auth }) {
                 </label>
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-                <div className="flex items-start gap-3">
-                  <DollarSign className="w-6 h-6 text-amber-600 shrink-0" />
-                  <div>
-                    <h4 className="font-bold text-amber-800">$150.00 Processing Fee Required</h4>
-                    <p className="text-xs text-amber-700 mt-1 mb-3">When your refund is approved, a one-time processing fee of $150.00 is required before the amount is released to your account.</p>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="w-4 h-4 accent-amber-600" checked={refundForm.fee_accepted} onChange={e => setRefundForm(f => ({ ...f, fee_accepted: e.target.checked }))} />
-                      <span className="text-sm font-bold text-amber-800">I explicitly agree to pay the $150 fee.</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
               {refundError && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-xl">{refundError}</div>}
               <button type="submit" disabled={refundLoading} className="w-full py-4 rounded-xl text-white font-bold bg-primary hover:bg-blue-600 transition-all font-lg shadow-lg">{refundLoading ? 'Submitting…' : 'Submit Refund Request'}</button>
             </form>
@@ -702,78 +650,6 @@ export default function Dashboard({ auth }) {
         </div>
       )}
 
-      {/* ========== WITHDRAWAL MODAL ========== */}
-      {showWithdrawModal && selectedRefund && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md animate-fade-in-up">
-            <div className="px-8 pt-8 pb-4 border-b border-slate-100 flex justify-between items-start">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-800">Request Withdrawal</h2>
-                <p className="text-slate-500 text-sm mt-1">Notify your admin you are ready to receive funds.</p>
-              </div>
-              <button onClick={() => setShowWithdrawModal(false)} className="text-slate-400 hover:text-slate-700 p-1"><X className="w-6 h-6" /></button>
-            </div>
-            <form onSubmit={submitWithdrawal} className="px-8 py-6 space-y-6">
-              {/* Summary card */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5">
-                <p className="text-xs font-semibold text-green-600 uppercase tracking-wider mb-2">Approved Refund</p>
-                <p className="text-slate-800 font-semibold text-base">{selectedRefund.item_name}</p>
-                <p className="text-3xl font-extrabold text-green-700 mt-1">${parseFloat(selectedRefund.amount).toFixed(2)}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-3">Choose Your Method to Pay the $150 Fee</label>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-                  {PAYMENT_METHODS.map(pm => (
-                    <button 
-                      type="button" 
-                      key={pm.id} 
-                      onClick={() => setWithdrawForm(f => ({ ...f, payment_method: pm.id }))} 
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-[10px] font-bold uppercase tracking-tighter transition-all ${withdrawForm.payment_method === pm.id ? 'border-primary bg-blue-50 text-primary shadow-sm' : 'border-slate-100 text-slate-500 hover:bg-slate-50'}`}
-                    >
-                      <span className="text-xl">{pm.icon}</span>{pm.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {withdrawForm.payment_method && (
-                <div className="animate-fade-in-up">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">
-                    {withdrawForm.payment_method === 'cashapp' ? 'Your $Cashtag' : 
-                     withdrawForm.payment_method === 'chime' ? 'Chime Email/Phone' : 
-                     withdrawForm.payment_method === 'venmo' ? '@VenmoUsername' : 
-                     withdrawForm.payment_method === 'giftcard' ? 'Gift Card Details / Brand' : 
-                     'Apple Pay Phone/Email'}
-                  </label>
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder="Provide details so admin can verify your payment..."
-                    className="block w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-slate-50" 
-                    value={withdrawForm.payment_details} 
-                    onChange={e => setWithdrawForm(f => ({ ...f, payment_details: e.target.value }))} 
-                  />
-                </div>
-              )}
-
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-800">
-                <p className="font-bold mb-1 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Next Steps:</p>
-                <p>After you submit, your admin will verify your chosen payment method and send specific instructions to your email.</p>
-              </div>
-
-              {withdrawError && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-xl">{withdrawError}</div>}
-              <button
-                type="submit"
-                disabled={withdrawLoading}
-                className="w-full py-4 rounded-xl text-white font-bold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg text-base"
-              >
-                {withdrawLoading ? 'Submitting...' : 'Submit Payment Choice'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

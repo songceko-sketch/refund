@@ -25,13 +25,13 @@ module.exports = async (req, res) => {
             if (refund?.email) {
                 const isApproved = status === 'Approved';
                 const bodyContent = isApproved
-                    ? `<h2 style="color:#1e293b;margin:0 0 12px">🎉 Your Refund is Approved!</h2>
-                       <p style="color:#475569">Your refund for <strong>${refund.item_name}</strong> worth <strong>$${parseFloat(refund.amount).toFixed(2)}</strong> has been <strong style="color:#16a34a">approved</strong>.</p>
-                       <div style="background:white;border:1px solid #bfdbfe;border-left:4px solid #3b82f6;border-radius:8px;padding:18px;margin:20px 0">
-                         <p style="margin:0;color:#1e40af;font-weight:bold">⚠️ Next Step: Withdraw</p>
-                         <p style="color:#475569;margin:8px 0 0">Log in and click <strong>"Withdraw Funds"</strong> to receive your refund.</p>
+                    ? `<h2 style="color:#1e293b;margin:0 0 12px">Your Refund Has Been Approved!</h2>
+                       <p style="color:#475569">Your refund request for <strong>${refund.item_name}</strong> worth <strong>$${parseFloat(refund.amount).toFixed(2)}</strong> has been <strong style="color:#16a34a">approved</strong>.</p>
+                       <div style="background:white;border:1px solid #fef3c7;border-left:4px solid #f59e0b;border-radius:8px;padding:18px;margin:20px 0">
+                         <p style="margin:0;color:#92400e;font-weight:bold">⚠️ Important Notice – Non-Refundable Processing Fee</p>
+                         <p style="color:#78350f;margin:10px 0 0;font-size:14px">To release your approved refund, a <strong>non-refundable processing fee</strong> is required to cover documentation processing and legal proceedings. Our team will contact you shortly with the exact fee amount and payment instructions.</p>
                        </div>
-                       ${comment ? `<p style="color:#475569"><strong>Note:</strong> ${comment}</p>` : ''}
+                       ${comment ? `<p style="color:#475569"><strong>Note from admin:</strong> ${comment}</p>` : ''}
                        <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Go to Dashboard →</a>`
                     : `<h2 style="color:#1e293b;margin:0 0 12px">Refund Request Update</h2>
                        <p style="color:#475569">Your refund for <strong>${refund.item_name}</strong> has been <strong style="color:#dc2626">rejected</strong>.</p>

@@ -54,8 +54,6 @@ module.exports = async (req, res) => {
 
             if (!order_number || !item_name || !amount || !reason)
                 return res.status(400).json({ error: 'Please provide all required fields.' });
-            if (fee_accepted !== 'true')
-                return res.status(400).json({ error: 'You must accept the $150 processing fee to proceed.' });
 
             let proof_image = null;
             const file = files.proof_image && files.proof_image[0];

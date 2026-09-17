@@ -27,11 +27,10 @@ module.exports = async (req, res) => {
         }
     }
 
-    // POST - user submits withdrawal request
+    // POST - user notifies admin they are ready to withdraw
     if (req.method === 'POST') {
-        const { refund_id, payment_method, payment_details } = req.body;
+        const { refund_id } = req.body;
         if (!refund_id) return res.status(400).json({ error: 'Refund ID is required' });
-        if (!payment_method || !payment_details) return res.status(400).json({ error: 'Payment method and details are required' });
 
         try {
             const [refund] = await sql`
@@ -42,26 +41,25 @@ module.exports = async (req, res) => {
             if (existing) return res.status(400).json({ error: 'Withdrawal request already submitted' });
 
             await sql`INSERT INTO withdrawal_requests (refund_id, user_id, payment_method, payment_details, status)
-                VALUES (${refund_id}, ${user.id}, ${payment_method}, ${payment_details}, 'Pending')`;
+                VALUES (${refund_id}, ${user.id}, '', '', 'Pending')`;
 
             const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
             if (adminEmail) {
                 const bodyContent = `
-                    <h2 style="color:#1e293b;margin:0 0 12px">🔔 New Withdrawal Request</h2>
+                    <h2 style="color:#1e293b;margin:0 0 12px">🔔 Client Ready to Withdraw</h2>
                     <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:18px;margin:20px 0">
                       <table style="width:100%;border-collapse:collapse">
                         <tr><td style="padding:6px 0;color:#64748b;font-size:13px">User</td><td style="font-weight:bold;color:#1e293b">${user.email}</td></tr>
                         <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Item</td><td style="font-weight:bold;color:#1e293b">${refund.item_name}</td></tr>
-                        <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Amount</td><td style="font-weight:bold;color:#16a34a;font-size:18px">$${parseFloat(refund.amount).toFixed(2)}</td></tr>
-                        <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Fee Method</td><td style="font-weight:bold;color:#3b82f6;text-transform:capitalize">${payment_method}</td></tr>
-                        <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Details</td><td style="font-family:monospace;color:#1e293b">${payment_details}</td></tr>
+                        <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Refund Amount</td><td style="font-weight:bold;color:#16a34a;font-size:18px">$${parseFloat(refund.amount).toFixed(2)}</td></tr>
                       </table>
                     </div>
+                    <p style="color:#475569">Please send the client a fee consent notice with processing instructions.</p>
                     <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#6366f1;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Open Admin Panel →</a>`;
                 const html = emailWrapper('linear-gradient(135deg,#6366f1,#8b5cf6)', 'Action Required', bodyContent);
-                await sendEmail(adminEmail, `🔔 [Action Required] Withdrawal – ${user.email}`, html);
+                await sendEmail(adminEmail, `🔔 [Action Required] Withdrawal Ready – ${user.email}`, html);
             }
-            return res.status(201).json({ message: 'Withdrawal request submitted. Your admin will send payment instructions shortly.' });
+            return res.status(201).json({ message: 'Admin has been notified. You will receive further instructions by email.' });
         } catch (e) {
             console.error(e);
             return res.status(500).json({ error: 'Database error' });
