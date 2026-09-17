@@ -1,23 +1,24 @@
 {
   "name": "refund",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "build": "npm install --prefix frontend && npm run build --prefix frontend",
-    "start": "node server.js"
+    "start": "node server.js",
+    "init-db": "node scripts/init-db.js"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.11.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
+    "multiparty": "^4.3.1",
     "nodemailer": "^8.0.5",
     "sqlite": "^5.1.1",
     "sqlite3": "^6.0.1"
