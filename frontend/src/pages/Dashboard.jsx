@@ -9,6 +9,7 @@ export default function Dashboard({ auth }) {
   const [actionLoading, setActionLoading] = useState(null);
   const [toast, setToast] = useState(null);
 
+  const [error, setError] = useState(null);
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [refundForm, setRefundForm] = useState({ order_number: '', item_name: '', amount: '', reason: '', details: '', proof_image: null });
   const [refundLoading, setRefundLoading] = useState(false);
@@ -42,14 +43,15 @@ export default function Dashboard({ auth }) {
           axios.get('/api/refunds', config),
           axios.get('/api/withdrawals', config).catch(() => ({ data: [] })),
         ]);
-        setRefunds(refundsRes.data);
-        setWithdrawals(withdrawalsRes.data);
+        setRefunds(Array.isArray(refundsRes.data) ? refundsRes.data : []);
+        setWithdrawals(Array.isArray(withdrawalsRes.data) ? withdrawalsRes.data : []);
       } else {
         const res = await axios.get('/api/refunds', config);
         setRefunds(res.data);
       }
     } catch (err) {
       console.error('fetchData error:', err);
+      setError(err?.response?.data?.error || err?.message || 'Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -205,6 +207,14 @@ export default function Dashboard({ auth }) {
   if (loading) return (
     <div className="flex justify-center items-center h-64">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="flex flex-col justify-center items-center h-64 gap-4">
+      <div className="text-red-600 font-semibold text-lg">⚠️ Failed to load dashboard</div>
+      <div className="text-slate-500 text-sm font-mono bg-slate-100 px-4 py-2 rounded-xl">{error}</div>
+      <button onClick={() => { setError(null); fetchData(); }} className="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">Retry</button>
     </div>
   );
 
