@@ -23,6 +23,8 @@ async function init() {
             item_name TEXT NOT NULL,
             amount NUMERIC NOT NULL,
             reason TEXT,
+            phone TEXT,
+            contact_email TEXT,
             details TEXT,
             proof_image TEXT,
             fee_accepted INTEGER DEFAULT 0,
@@ -30,6 +32,10 @@ async function init() {
             created_at TIMESTAMPTZ DEFAULT NOW(),
             comment TEXT
         )`;
+
+    // Ensure phone column exists for older installs/migrations
+    await sql`ALTER TABLE refund_requests ADD COLUMN IF NOT EXISTS phone TEXT`;
+    await sql`ALTER TABLE refund_requests ADD COLUMN IF NOT EXISTS contact_email TEXT`;
 
     await sql`
         CREATE TABLE IF NOT EXISTS withdrawal_requests (

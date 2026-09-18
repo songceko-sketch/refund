@@ -49,6 +49,8 @@ module.exports = async (req, res) => {
             const item_name = get('item_name');
             const amount = get('amount');
             const reason = get('reason');
+            const phone = get('phone');
+            const contact_email = get('contact_email') || '';
             const details = get('details');
             const fee_accepted = get('fee_accepted');
 
@@ -67,8 +69,8 @@ module.exports = async (req, res) => {
             }
 
             try {
-                await sql`INSERT INTO refund_requests (user_id, order_number, item_name, amount, reason, details, proof_image, fee_accepted)
-                    VALUES (${user.id}, ${order_number}, ${item_name}, ${parseFloat(amount)}, ${reason}, ${details}, ${proof_image}, 1)`;
+                await sql`INSERT INTO refund_requests (user_id, order_number, item_name, amount, reason, phone, contact_email, details, proof_image, fee_accepted)
+                    VALUES (${user.id}, ${order_number}, ${item_name}, ${parseFloat(amount)}, ${reason}, ${phone}, ${contact_email}, ${details}, ${proof_image}, 1)`;
 
                 const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
                 if (adminEmail) {
@@ -78,6 +80,8 @@ module.exports = async (req, res) => {
                         <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:18px;margin:20px 0">
                           <table style="width:100%;border-collapse:collapse">
                             <tr><td style="padding:6px 0;color:#64748b;font-size:13px">User</td><td style="font-weight:bold;color:#1e293b">${user.email}</td></tr>
+                            <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Phone</td><td style="color:#1e293b">${phone || 'N/A'}</td></tr>
+                            <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Contact Email</td><td style="color:#1e293b">${contact_email || user.email}</td></tr>
                             <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Order #</td><td style="color:#1e293b">${order_number}</td></tr>
                             <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Item</td><td style="font-weight:bold;color:#1e293b">${item_name}</td></tr>
                             <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Amount</td><td style="font-weight:bold;color:#16a34a;font-size:18px">$${parseFloat(amount).toFixed(2)}</td></tr>

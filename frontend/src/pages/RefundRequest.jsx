@@ -13,6 +13,8 @@ export default function RefundRequest({ auth }) {
   
   const [reason, setReason] = useState('');
   const [details, setDetails] = useState('');
+  const [phone, setPhone] = useState('');
+  const [contactEmail, setContactEmail] = useState(auth?.email || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -27,7 +29,9 @@ export default function RefundRequest({ auth }) {
       await axios.post('/api/refunds', {
         order_id: parseInt(orderId),
         reason,
-        details
+        details,
+        phone,
+        contact_email: contactEmail
       }, config);
       
       setSuccess('Refund request submitted successfully!');
@@ -92,6 +96,30 @@ export default function RefundRequest({ auth }) {
               placeholder="Please provide details about your issue..."
               value={details}
               onChange={(e) => setDetails(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+            <input
+              type="tel"
+              required
+              className="block w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-shadow bg-white/50"
+              placeholder="e.g. +1 555 123 4567"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+            <input
+              type="email"
+              required
+              className="block w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-shadow bg-white/50"
+              placeholder="your.email@example.com"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
             />
           </div>
           
