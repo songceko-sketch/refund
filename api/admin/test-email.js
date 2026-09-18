@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
         });
         const bodyContent = `<h2 style="color:#1e293b;margin:0 0 12px">🧪 Test Email Successful</h2><p style="color:#475569">Your RefundFlow email system is correctly configured!</p>`;
         const html = emailWrapper('linear-gradient(135deg,#16a34a,#15803d)', 'System Test', bodyContent);
-        await transporter.sendMail({ from: `"RefundFlow" <${process.env.EMAIL_USER}>`, to: process.env.EMAIL_USER, subject: '✅ RefundFlow Email Test', html });
+        await transporter.sendMail({ from: `"RefundGlobal" <${process.env.EMAIL_USER}>`, to: process.env.EMAIL_USER, subject: '✅ RefundGlobal Email Test', html });
         return res.json({ message: `Test email sent to ${process.env.EMAIL_USER}` });
     } catch (e) {
         return res.status(500).json({ error: `SMTP Error: ${e.message}` });
