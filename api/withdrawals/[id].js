@@ -1,6 +1,6 @@
 const sql = require('../../lib/db');
 const { cors, requireAdmin } = require('../../lib/middleware');
-const { sendEmail, emailWrapper } = require('../../lib/email');
+const { sendEmail, emailWrapper, getFrontendUrl } = require('../../lib/email');
 
 module.exports = async (req, res) => {
     cors(res);
@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
                     <div style="background:white;border:2px dashed #f59e0b;border-radius:10px;padding:20px;margin:20px 0">
                       <pre style="margin:0;font-family:monospace;font-size:15px;color:#1e293b;white-space:pre-wrap">${admin_reply || 'No instructions provided.'}</pre>
                     </div>
-                    <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#f59e0b;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">View Dashboard →</a>`;
+                    <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#f59e0b;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">View Dashboard →</a>`;
             } else if (status === 'Approved') {
                 subject = `🎉 Withdrawal Processed – "${w.item_name}"`;
                 headerColor = 'linear-gradient(135deg,#16a34a,#15803d)';
@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
                     <h2 style="color:#1e293b;margin:0 0 12px">🎉 Funds Released!</h2>
                     <p style="color:#475569">Your withdrawal of <strong style="color:#16a34a;font-size:20px">$${parseFloat(w.amount).toFixed(2)}</strong> for <strong>${w.item_name}</strong> has been approved.</p>
                     ${admin_reply ? `<div style="background:white;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:8px;padding:16px;margin:20px 0"><p style="margin:0;color:#166534"><strong>Note:</strong> ${admin_reply}</p></div>` : ''}
-                    <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#16a34a;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Go to Dashboard →</a>`;
+                    <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#16a34a;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Go to Dashboard →</a>`;
             } else {
                 subject = `❌ Withdrawal Cancelled – "${w.item_name}"`;
                 headerColor = 'linear-gradient(135deg,#ef4444,#dc2626)';
@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
                     <h2 style="color:#1e293b;margin:0 0 12px">Withdrawal Cancelled</h2>
                     <p style="color:#475569">Your withdrawal for <strong>${w.item_name}</strong> has been rejected.</p>
                     ${admin_reply ? `<div style="background:white;border:1px solid #fecaca;border-left:4px solid #ef4444;border-radius:8px;padding:16px;margin:20px 0"><p style="margin:0;color:#991b1b"><strong>Reason:</strong> ${admin_reply}</p></div>` : ''}
-                    <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Go to Dashboard →</a>`;
+                    <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Go to Dashboard →</a>`;
             }
             const html = emailWrapper(headerColor, headerLabel, bodyContent);
             try {

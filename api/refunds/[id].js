@@ -32,11 +32,11 @@ module.exports = async (req, res) => {
                          <p style="color:#78350f;margin:10px 0 0;font-size:14px">To release your approved refund, a <strong>non-refundable processing fee</strong> is required to cover documentation processing and legal proceedings. Our team will contact you shortly with the exact fee amount and payment instructions.</p>
                        </div>
                        ${comment ? `<p style="color:#475569"><strong>Note from admin:</strong> ${comment}</p>` : ''}
-                       <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Go to Dashboard →</a>`
+                           <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Go to Dashboard →</a>`
                     : `<h2 style="color:#1e293b;margin:0 0 12px">Refund Request Update</h2>
                        <p style="color:#475569">Your refund for <strong>${refund.item_name}</strong> has been <strong style="color:#dc2626">rejected</strong>.</p>
                        ${comment ? `<p style="color:#475569"><strong>Reason:</strong> ${comment}</p>` : ''}
-                       <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px">Go to Dashboard →</a>`;
+                           <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px">Go to Dashboard →</a>`;
                 const html = emailWrapper(
                     isApproved ? 'linear-gradient(135deg,#3b82f6,#6366f1)' : 'linear-gradient(135deg,#ef4444,#dc2626)',
                     isApproved ? 'Refund Approved' : 'Refund Rejected', bodyContent

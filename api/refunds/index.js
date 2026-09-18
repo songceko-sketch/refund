@@ -1,6 +1,6 @@
 const sql = require('../../lib/db');
 const { cors, requireAuth, requireAdmin } = require('../../lib/middleware');
-const { sendEmail, emailWrapper } = require('../../lib/email');
+const { sendEmail, emailWrapper, getFrontendUrl } = require('../../lib/email');
 const { uploadImage } = require('../../lib/cloudinary');
 const multiparty = require('multiparty');
 const fs = require('fs');
@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
                             <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Details</td><td style="color:#475569">${details || 'N/A'}</td></tr>
                           </table>
                         </div>
-                        <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Review Request →</a>`;
+                        <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Review Request →</a>`;
                     const html = emailWrapper('linear-gradient(135deg,#3b82f6,#6366f1)', 'New Refund Request', bodyContent);
                     await sendEmail(adminEmail, `📥 New Refund Request – ${user.email}`, html);
                 }

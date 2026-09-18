@@ -82,6 +82,8 @@ function emailWrapper(headerColor, headerText, bodyContent) {
     </div>`;
 }
 
+const { getFrontendUrl } = require('./lib/email');
+
 async function setupDatabase() {
     const dbPath = path.join(DATA_DIR, 'database.sqlite');
     console.log('📊 Initializing database at:', dbPath);
@@ -311,7 +313,7 @@ app.put('/api/refunds/:id', authenticateToken, requireAdmin, async (req, res) =>
                      <p style="color:#475569;margin:8px 0 0">To withdraw your refund of <strong>$${parseFloat(refund.amount).toFixed(2)}</strong>, log in to your RefundFlow dashboard and click <strong>"Notify Admin – Ready to Withdraw"</strong>. Your admin will then send you payment instructions.</p>
                    </div>
                    ${comment ? `<p style="color:#475569"><strong>Note from admin:</strong> ${comment}</p>` : ''}
-                   <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Go to Dashboard →</a>`
+                   <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Go to Dashboard →</a>`
                 : `<h2 style="color:#1e293b;margin:0 0 12px">Refund Request Update</h2>
                    <p style="color:#475569">Unfortunately, your refund request for <strong>${refund.item_name}</strong> has been <strong style="color:#dc2626">rejected</strong>.</p>
                    ${comment ? `<p style="color:#475569"><strong>Reason:</strong> ${comment}</p>` : ''}`;
@@ -359,7 +361,7 @@ app.put('/api/refunds/:id/amount', authenticateToken, requireAdmin, async (req, 
                   <p style="margin:4px 0 0;font-size:32px;font-weight:bold;color:#16a34a">$${newAmount}</p>
                 </div>
                 <p style="color:#475569">Log in to your dashboard to see the updated amount reflected on your refund.</p>
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">View Dashboard →</a>`;
+                <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">View Dashboard →</a>`;
             const html = emailWrapper('linear-gradient(135deg,#f59e0b,#d97706)', 'Amount Updated', bodyContent);
             await sendEmail(refund.email, `💰 Your Refund Amount Updated – "${refund.item_name}"`, html);
         }
@@ -410,7 +412,7 @@ app.post('/api/withdrawals', authenticateToken, async (req, res) => {
                   </table>
                 </div>
                 <p style="color:#475569">Log in to the admin panel to provide specific instructions to the user.</p>
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" style="display:inline-block;background:#6366f1;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Open Admin Panel →</a>`;
+                <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#6366f1;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Open Admin Panel →</a>`;
             const html = emailWrapper('linear-gradient(135deg,#6366f1,#8b5cf6)', 'Action Required', bodyContent);
             await sendEmail(adminEmail, `🔔 [Action Required] Withdrawal Request – ${req.user.email}`, html);
         }
@@ -473,7 +475,7 @@ app.put('/api/withdrawals/:id', authenticateToken, requireAdmin, async (req, res
                       <pre style="margin:0;font-family:monospace;font-size:15px;color:#1e293b;white-space:pre-wrap">${admin_reply || 'No instructions provided.'}</pre>
                     </div>
                     <p style="color:#475569">Once you have sent the payment, your admin will approve the withdrawal and release your funds. You will receive a confirmation email.</p>
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" style="display:inline-block;background:#f59e0b;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">View My Dashboard →</a>`;
+                    <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#f59e0b;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">View My Dashboard →</a>`;
             } else if (status === 'Approved') {
                 subject = `🎉 Your Withdrawal for "${withdrawal.item_name}" Has Been Processed!`;
                 headerColor = 'linear-gradient(135deg,#16a34a,#15803d)';

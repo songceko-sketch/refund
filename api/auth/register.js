@@ -1,7 +1,7 @@
 const sql = require('../../lib/db');
 const bcrypt = require('bcryptjs');
 const { cors } = require('../../lib/middleware');
-const { sendEmail, emailWrapper } = require('../../lib/email');
+const { sendEmail, emailWrapper, getFrontendUrl } = require('../../lib/email');
 
 module.exports = async (req, res) => {
     cors(res);
@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
                     <tr><td style="padding:6px 0;color:#64748b;font-size:13px">Registered At</td><td style="color:#1e293b">${new Date().toUTCString()}</td></tr>
                   </table>
                 </div>
-                <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#6366f1;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">View Admin Panel →</a>`;
+                <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#6366f1;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">View Admin Panel →</a>`;
             const html = emailWrapper('linear-gradient(135deg,#6366f1,#8b5cf6)', 'New Registration', bodyContent);
             await sendEmail(adminEmail, `👤 New User Registered – ${email}`, html);
         }

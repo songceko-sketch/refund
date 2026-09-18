@@ -1,6 +1,6 @@
 const sql = require('../../lib/db');
 const { cors, requireAdmin } = require('../../lib/middleware');
-const { sendEmail, emailWrapper } = require('../../lib/email');
+const { sendEmail, emailWrapper, getFrontendUrl } = require('../../lib/email');
 
 module.exports = async (req, res) => {
     cors(res);
@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
                   <p style="margin:0;color:#64748b;font-size:13px">New Amount</p>
                   <p style="margin:4px 0 0;font-size:32px;font-weight:bold;color:#16a34a">$${newAmount}</p>
                 </div>
-                <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">View Dashboard →</a>`;
+                <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">View Dashboard →</a>`;
             const html = emailWrapper('linear-gradient(135deg,#f59e0b,#d97706)', 'Amount Updated', bodyContent);
             await sendEmail(refund.email, `💰 Refund Amount Updated – "${refund.item_name}"`, html);
         }

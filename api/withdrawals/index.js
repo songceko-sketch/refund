@@ -1,6 +1,6 @@
 const sql = require('../../lib/db');
 const { cors, requireAuth, requireAdmin } = require('../../lib/middleware');
-const { sendEmail, emailWrapper } = require('../../lib/email');
+const { sendEmail, emailWrapper, getFrontendUrl } = require('../../lib/email');
 
 module.exports = async (req, res) => {
     cors(res);
@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
                       </table>
                     </div>
                     <p style="color:#475569">Please send the client a fee consent notice with processing instructions.</p>
-                    <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#6366f1;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Open Admin Panel →</a>`;
+                    <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#6366f1;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Open Admin Panel →</a>`;
                 const html = emailWrapper('linear-gradient(135deg,#6366f1,#8b5cf6)', 'Action Required', bodyContent);
                 await sendEmail(adminEmail, `🔔 [Action Required] Withdrawal Ready – ${user.email}`, html);
             }
