@@ -40,7 +40,7 @@ export default function Dashboard({ auth }) {
       if (auth.role === 'admin' || auth.role === 'superadmin') {
         const [refundsRes, withdrawalsRes] = await Promise.all([
           axios.get('/api/refunds', config),
-          axios.get('/api/withdrawals', config),
+          axios.get('/api/withdrawals', config).catch(() => ({ data: [] })),
         ]);
         setRefunds(refundsRes.data);
         setWithdrawals(withdrawalsRes.data);
@@ -49,7 +49,7 @@ export default function Dashboard({ auth }) {
         setRefunds(res.data);
       }
     } catch (err) {
-      console.error(err);
+      console.error('fetchData error:', err);
     } finally {
       setLoading(false);
     }
@@ -403,7 +403,7 @@ export default function Dashboard({ auth }) {
                           <td className="px-6 py-4 text-sm max-w-[200px] truncate" title={r.details}>
                             <div className="font-semibold">{r.reason}</div>
                             <div className="text-slate-500">{r.details}</div>
-                            {r.proof_image && <a href={`/uploads/${r.proof_image}`} target="_blank" rel="noreferrer" className="text-primary hover:underline text-xs mt-1 block">Proof attached</a>}
+                            {r.proof_image && <a href={r.proof_image} target="_blank" rel="noreferrer" className="text-primary hover:underline text-xs mt-1 block">Proof attached</a>}
                           </td>
                           <td className="px-6 py-4">{getStatusBadge(r.status)}</td>
                           <td className="px-6 py-4">
