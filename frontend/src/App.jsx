@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -41,6 +43,7 @@ function App() {
 
   return (
     <Router>
+      <AxiosAuth auth={auth} logout={logout} />
       <div className="min-h-screen font-sans text-slate-800 flex flex-col">
         <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 shadow-sm">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,6 +120,42 @@ function App() {
       </div>
     </Router>
   );
+}
+
+function AxiosAuth({ auth, logout }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Attach token from localStorage for every request (handles cross-origin cases)
+    const req = axios.interceptors.request.use((config) => {
+      const token = localStorage.getItem('token');
+      if (token) config.headers = { ...(config.headers || {}), Authorization: `Bearer ${token}` };
+      else if (config.headers) delete config.headers.Authorization;
+      return config;
+    });
+
+    // Global 401 handler: clear auth and redirect to login
+    const res = axios.interceptors.response.use(
+      (r) => r,
+      (err) => {
+        if (err?.response?.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('role');
+          localStorage.removeItem('email');
+          logout();
+          navigate('/login');
+        }
+        return Promise.reject(err);
+      }
+    );
+
+    return () => {
+      axios.interceptors.request.eject(req);
+      axios.interceptors.response.eject(res);
+    };
+  }, [auth, logout, navigate]);
+
+  return null;
 }
 
 export default App;
