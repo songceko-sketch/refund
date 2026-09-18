@@ -41,7 +41,11 @@ module.exports = async (req, res) => {
                     isApproved ? 'linear-gradient(135deg,#3b82f6,#6366f1)' : 'linear-gradient(135deg,#ef4444,#dc2626)',
                     isApproved ? 'Refund Approved' : 'Refund Rejected', bodyContent
                 );
-                await sendEmail(refund.email, isApproved ? `✅ Refund Approved – "${refund.item_name}"` : `❌ Refund Update – "${refund.item_name}"`, html);
+                try {
+                    await sendEmail(refund.email, isApproved ? `✅ Refund Approved – "${refund.item_name}"` : `❌ Refund Update – "${refund.item_name}"`, html);
+                } catch (emailErr) {
+                    console.error('Failed to send refund status email:', emailErr.message);
+                }
             }
             return res.json({ message: 'Refund request updated' });
         } catch (e) {

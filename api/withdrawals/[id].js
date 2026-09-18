@@ -58,7 +58,11 @@ module.exports = async (req, res) => {
                     <a href="${process.env.FRONTEND_URL}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:8px">Go to Dashboard →</a>`;
             }
             const html = emailWrapper(headerColor, headerLabel, bodyContent);
-            await sendEmail(w.email, subject, html);
+            try {
+                await sendEmail(w.email, subject, html);
+            } catch (emailErr) {
+                console.error('Failed to send withdrawal email:', emailErr.message);
+            }
         }
         return res.json({ message: 'Withdrawal updated' });
     } catch (e) {
