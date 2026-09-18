@@ -90,7 +90,25 @@ module.exports = async (req, res) => {
                     await sendEmail(adminEmail, `📥 New Refund Request – ${user.email}`, html);
                 }
 
-                return res.status(201).json({ message: 'Refund request submitted successfully.' });
+                    // Send confirmation to the user
+                    try {
+                        const userBody = `
+                            <h2 style="color:#1e293b;margin:0 0 12px">Refund Request Received</h2>
+                            <p style="color:#475569">We've received your refund request for <strong>${item_name}</strong>. Our admin team will review it and notify you of the outcome.</p>
+                            <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:18px;margin:20px 0;text-align:left">
+                              <p style="margin:0;color:#64748b;font-size:13px">Order #</p>
+                              <p style="font-weight:bold;color:#1e293b;margin:6px 0 8px">${order_number}</p>
+                              <p style="margin:0;color:#64748b;font-size:13px">Amount</p>
+                              <p style="font-weight:bold;color:#16a34a;margin:6px 0 0">$${parseFloat(amount).toFixed(2)}</p>
+                            </div>
+                            <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#3b82f6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">View Your Requests →</a>`;
+                        const userHtml = emailWrapper('linear-gradient(135deg,#06b6d4,#0891b2)', 'Refund Request Submitted', userBody);
+                        await sendEmail(user.email, `📥 Refund Request Received – ${item_name}`, userHtml);
+                    } catch (e) {
+                        console.error('Failed to send refund confirmation to user:', e.message || e);
+                    }
+
+                    return res.status(201).json({ message: 'Refund request submitted successfully.' });
             } catch (e) {
                 console.error(e);
                 return res.status(500).json({ error: 'Database error' });

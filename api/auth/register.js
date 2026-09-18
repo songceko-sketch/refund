@@ -31,6 +31,22 @@ module.exports = async (req, res) => {
             await sendEmail(adminEmail, `👤 New User Registered – ${email}`, html);
         }
 
+        // Send confirmation email to the new user
+        try {
+            const userBody = `
+                <h2 style="color:#1e293b;margin:0 0 12px">Welcome to RefundGlobal</h2>
+                <p style="color:#475569">Your account has been created successfully.</p>
+                <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:18px;margin:20px 0">
+                  <p style="margin:0;color:#64748b;font-size:13px">Email</p>
+                  <p style="font-weight:bold;color:#1e293b;margin:6px 0 0">${email}</p>
+                </div>
+                <a href="${getFrontendUrl()}/dashboard" style="display:inline-block;background:#10b981;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold">Go to Your Dashboard →</a>`;
+            const userHtml = emailWrapper('linear-gradient(135deg,#10b981,#059669)', 'Account Created', userBody);
+            await sendEmail(email, '✅ Your RefundGlobal Account', userHtml);
+        } catch (e) {
+            console.error('Failed to send registration email to user:', e.message || e);
+        }
+
         return res.status(201).json({ message: 'User created' });
     } catch (e) {
         if (e.code === '23505') return res.status(400).json({ error: 'Email already exists' });
