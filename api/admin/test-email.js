@@ -9,8 +9,8 @@ module.exports = async (req, res) => {
     const admin = requireAdmin(req, res);
     if (!admin) return;
 
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS)
-        return res.status(400).json({ error: 'EMAIL_USER or EMAIL_PASS not set in environment variables' });
+    if (!process.env.RESEND_API_KEY)
+        return res.status(400).json({ error: 'RESEND_API_KEY not set in environment variables' });
 
     try {
         const bodyContent = `<h2 style="color:#1e293b;margin:0 0 12px">🧪 Test Email Successful</h2><p style="color:#475569">Your RefundGlobal email system is correctly configured and sending.</p>`;
