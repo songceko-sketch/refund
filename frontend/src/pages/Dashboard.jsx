@@ -23,7 +23,7 @@ export default function Dashboard({ auth }) {
   const [addAdminLoading, setAddAdminLoading] = useState(false);
 
   useEffect(() => {
-    document.title = (auth.role === 'admin' || auth.role === 'superadmin') ? 'Admin Panel - RefundFlow' : 'My Dashboard - RefundFlow';
+    document.title = (auth.role === 'admin' || auth.role === 'superadmin') ? 'Admin Panel - RefundGlobal' : 'My Dashboard - RefundGlobal';
     fetchData();
   }, [auth]);
 
